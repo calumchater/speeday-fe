@@ -2,6 +2,8 @@
 import { api } from "./configs/axiosConfigs"
 import { defineCancelApiObject } from "./configs/axiosUtils"
 
+import { CookiesProvider, useCookies } from "react-cookie";
+
 export const TaskAPI = {
   create: async function (Task, cancel = false) {
     await api.request({
@@ -12,12 +14,17 @@ export const TaskAPI = {
     })
   },
   createMany: async function (Tasks, cancel = false) {
-    await api.request({
-      url: `/tasks`,
-      method: "POST",
-      data: Tasks,
-      signal: cancel ? cancelApiObject[this.create.name].handleRequestCancellation().signal : undefined,
-    })
+    try {
+      const { data: response } = await api.request({
+        url: `/tasks`,
+        method: "POST",
+        data: { tasks: Tasks },
+        signal: cancel ? cancelApiObject[this.create.name].handleRequestCancellation().signal : undefined,
+      })
+      return response;
+    } catch (error) {
+      console.error(error)
+    }
   }
 }
 
